@@ -49,8 +49,8 @@ string2 = "execution"
 distance = 0
 
 print "Edit Distance: "
-parseInt = gets.chomp
-distance = Integer(parseInt)
+# parseInt = gets.chomp
+# distance = Integer(parseInt)
 operStr = copy(string1)
 
 # # This performs the operations based on the size of distance.
