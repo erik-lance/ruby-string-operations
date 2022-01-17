@@ -31,6 +31,16 @@ def replace(str, x)
     operStr
 end
 
+def editStringDist(str1, str2, x,y)
+    if    x == 0 then y
+    elsif y == 0 then x
+    elsif (str1[x-1] == str2[y-1]) then editStringDist(str1,str2,x,y)
+    else
+        value = 1 + [editStringDist(str1,str2,x,y-1),
+                    editStringDist(str1,str2,x-1,y),
+                    editStringDist(str1,str2,x-1,y-1)].min
+    end
+end
 
 string1 = "intention"
 string2 = "execution"
@@ -43,10 +53,10 @@ parseInt = gets.chomp
 distance = Integer(parseInt)
 operStr = copy(string1)
 
-# This performs the operations based on the size of distance.
-(0...distance).each do |i|
-    # puts "Operation #{i}"
-    operStr = replace(operStr,'a')
-    puts "Now: #{operStr}"
-    @pointer += 1
-end
+# # This performs the operations based on the size of distance.
+# (0...distance).each do |i|
+#     # puts "Operation #{i}"
+#     operStr = replace(operStr,'a')
+#     puts "Now: #{operStr}"
+#     @pointer += 1
+# end
