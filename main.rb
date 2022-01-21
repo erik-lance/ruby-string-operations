@@ -33,7 +33,7 @@ def minEditDist(str1,str2, x, y, matrix)
         val2 = 0
         val3 = 0
 
-        # Remove
+        # Delete
         if    matrix[x-1][y] != -1 then val1 = matrix[x-1][y]
         else  val1 = minEditDist(str1,str2,x-1,y, matrix)
         end
@@ -54,7 +54,48 @@ def minEditDist(str1,str2, x, y, matrix)
 end
 
 # Prints the edits to reach the goal string from [x][y]
+def adjprintEdits(matrix, str1, str2)
+    # Grabs the length of horizontal and vertical in matrix
+    x = 0
+    y = 0
+    loop = true
+    printList = Array.new
+    while(loop) 
+        if (x==str1.length-1|| y==str2.length-1) then 
+            loop = false
+            break; 
+        end
+        if (str1[x+1]==str2[y+1])
+            x = x+1
+            y = y+1
+        elsif (matrix[x][y] == matrix[x-1][y]+1)
+            printList.push("Delete "+str1[x-1])
+            x = x-1
+        elsif (matrix[x][y] == matrix[x][y-1]+1)
+            printList.push("Insert "+str2[y-1])
+            y= y-1
+        elsif (matrix[x][y] == matrix[x-1][y-1]+1)
+            printList.push("Replace "+str1[x-1]+" with "+str2[y-1])
+            x = x-1
+            y = y-1
+        else
+            puts "ERROR "+x.to_s+" and "+y.to_s
+            loop = false
+        end
+    end
+
+    # This prints in reverse order to show the proper logic
+    (-printList.length()...1).each do |x|
+        puts printList[x.abs]
+    end
+end
+
+# Prints the edits to reach the goal string from [x][y]
 def printEdits(matrix, str1, str2)
+    # For print calculation purposes, the index 0,0 must be 0
+    # instead of -1 due to dynamic programming and memoization.
+    matrix[0][0] = 0
+    
     # Grabs the length of horizontal and vertical in matrix
     x = matrix.length-1
     y = matrix[0].length-1
@@ -68,25 +109,31 @@ def printEdits(matrix, str1, str2)
         if (str1[x-1]==str2[y-1])
             x = x-1
             y = y-1
-        elsif (matrix[x][y] == matrix[x-1][y-1]+1)
-            printList.push("Replace "+str1[x-1]+" with "+str2[y-1])
-            x = x-1
-            y = y-1
         elsif (matrix[x][y] == matrix[x-1][y]+1)
-            puts "test"
             printList.push("Delete "+str1[x-1])
             x = x-1
         elsif (matrix[x][y] == matrix[x][y-1]+1)
             printList.push("Insert "+str2[y-1])
             y= y-1
+        elsif (matrix[x][y] == matrix[x-1][y-1]+1)
+            printList.push("Replace "+str1[x-1]+" with "+str2[y-1])
+            x = x-1
+            y = y-1
+        elsif (matrix[x][y] == matrix[x-1][y-1]+2 && x==1)
+            printList.push("Replace "+str1[x-1]+" with "+str2[y-1])
+            x = x-1
+            y = y-1
         else
-            puts "ERROR "+x.to_s+" and "+y.to_s
+            puts "ERROR "+x.to_s+" and "+y.to_s+": "+matrix[x][y].to_s
+            puts "ERROR "+(x-1).to_s+" and "+(y-1).to_s+": "+matrix[x-1][y-1].to_s
+            puts "str1 "+str1[x]+" str2 "+str2[x]
+            puts "str1 "+str1[x-1]+" str2 "+str2[x-1]
             loop = false
         end
     end
 
     # This prints in reverse order to show the proper logic
-    (-printList.length()...0).each do |x|
+    (-printList.length()...1).each do |x|
         puts printList[x.abs]
     end
 end
@@ -94,7 +141,6 @@ end
 string1 = "intention"
 string2 = "execution"
 
-distance = 0
 # This simply creates a matrix of value -1 (which is the base value)
 strMatrix = Array.new(string1.length+1) { Array.new(string2.length+1) {-1} }
 @globalMatrix = Array.new(string1.length+1) { Array.new(string2.length+1) {-1} }
@@ -103,21 +149,11 @@ puts "Input string 1 = #{string1}"
 puts "Input string 2 = #{string2}"
 
 print "Edit Distance: "
-print minEditDist(string1, string2, string1.length, string2.length, strMatrix)
+print minEditDist(string1, string2, string1.length(), string2.length(), strMatrix)
 
 puts "\nOperations: "
 strMatrix = @globalMatrix
 printEdits(strMatrix, string1, string2)
-# (0...string1.length+1).each do |i|
-#     puts "Operation "+@globalMatrix[i][i].to_s
-
-# end
-
-# puts "Matrix rn: "
-# @globalMatrix.each { |x|
-#     if (x.length < 2) then x = " a#{x}" end
-#         puts x.join(" ")
-# }
 
 width = @globalMatrix.flatten.max.to_s.size+2
   #=> 4
