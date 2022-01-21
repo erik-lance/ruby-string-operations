@@ -3,10 +3,10 @@ A requirement in CS Advanced Programming. The language of choice is ruby.
 
 The goal is to perform a distance of operations to copy the string in string 2 unto string 1 through dynamic programming.
 
-#### minEditDist
+## minEditDist
 Simply put, it sets everything to -1. Afterwards, it does what is expected in a matrix through dynamic programming, which is if it expects a number of operations at this coordinate, it adds based on that number of operations. It then calculates the minimum number from it diagonally, from the west, and from the north. It stops when it reaches its  end. Note: not all boxes will actually be filled, it is efficient enough to avoid calculating too much.
 
-###### printEdit
+## printEdit
 Since this is dynamic programming, the approach is of course, top-down. We start at the last number at matrix[x][y] and this lets us view all the calculations from here.
 
 It always calculates for a number equal to it diagonally first, which means it will simply move up since there is nothing interesting that happened. However, if it observes that the number diagonal from it is its number-1, it believes this is a replace statement! However if the approach is the same from y-1, it is an insert! Lastly, if it is from x-1, then it is a delete.
