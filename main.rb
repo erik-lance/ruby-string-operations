@@ -4,108 +4,132 @@
 # Paradigm: Object-Oriented
 # *********************
 
-# This is a ruby program in handling string operations.
-puts ("CSADPRG MP String Operations w/ Distance")
-
-def minEditDist(str1,str2, x, y, matrix)
-    if x == 0 then return y end
-    if y == 0 then return x end
-
-    if (matrix[x][y] != -1) then return matrix[x][y] end
-
-    # If characters are equal, perform a recursive function of finding the minimum distance.
-    if str1[x-1] == str2[y-1] then
-        if(matrix[x-1][y-1] == -1) then 
-            matrix[x][y] = minEditDist(str1,str2,x-1,y-1,matrix)
-            return matrix[x][y]
-        else 
-            matrix[x][y] = matrix[x-1][y-1]
-            return matrix[x][y]
-        end
-    else
-        # If characters are not equal, we find the minimum cost operation between the three.
-        val1 = 0
-        val2 = 0
-        val3 = 0
-
-        # Delete
-        if    matrix[x-1][y] != -1 then val1 = matrix[x-1][y]
-        else  val1 = minEditDist(str1,str2,x-1,y, matrix)
-        end
-
-        # Insert
-        if    matrix[x][y-1] != -1 then val2 = matrix[x][y-1]
-        else  val2 = minEditDist(str1,str2,x,y-1, matrix)
-        end
-
-        # Replace
-        if    matrix[x-1][y-1] != -1 then val3 = matrix[x-1][y-1]
-        else  val3 = minEditDist(str1,str2,x-1,y-1, matrix)
-        end
-        matrix[x][y] = 1 + [val1,val2,val3].min
-        @globalMatrix = matrix
-        return matrix[x][y]
+# This is a ruby program in handling string edit operations.
+class Distance
+    # Constructor for the Distance Object
+    def initialize(string1, string2, matrix)
+        @matrix = matrix
+        @str1 = string1
+        @str2 = string2
+        @editPrompts = Array.new
+        puts "test"
+        @distance = minEditDist(string1.length,string2.length)
     end
-end
 
-# Prints the edits to reach the goal string from [x][y]
-def printEdits(matrix, str1, str2)
-    # For print calculation purposes, the index 0,0 must be 0
-    # instead of -1 due to dynamic programming and memoization.
-    matrix[0][0] = 0
-    
-    # Grabs the length of horizontal and vertical in matrix
-    x = matrix.length-1
-    y = matrix[0].length-1
-    loop = true
-    printList = Array.new
-    while(loop) 
-        if (x==0||y==0) then 
-            loop = false
-            break; 
-        end
-        if (str1[x-1]==str2[y-1])
-            x = x-1
-            y = y-1
-        elsif (matrix[x][y] == matrix[x-1][y]+1)
-            printList.push("Delete "+str1[x-1])
-            x = x-1
-        elsif (matrix[x][y] == matrix[x][y-1]+1)
-            printList.push("Insert "+str2[y-1])
-            y= y-1
-        elsif (matrix[x][y] == matrix[x-1][y-1]+1)
-            printList.push("Replace "+str1[x-1]+" with "+str2[y-1])
-            x = x-1
-            y = y-1
+    # This performs all the calculations for the edit distance
+    # x = pointer in x direction (initially length of str1)
+    # y = pointer in y direction (initially length of str2)
+    def minEditDist(x, y)
+        if x == 0 then return y end
+        if y == 0 then return x end
+
+        if (@matrix[x][y] != -1) then return @matrix[x][y] end
+
+        # If characters are equal, perform a recursive function of finding the minimum distance.
+        if @str1[x-1] == @str2[y-1] then
+            if(@matrix[x-1][y-1] == -1) then 
+                @matrix[x][y] = minEditDist(x-1,y-1)
+                return @matrix[x][y]
+            else 
+                @matrix[x][y] = @matrix[x-1][y-1]
+                return @matrix[x][y]
+            end
         else
-            puts "ERROR"
-            loop = false
+            # If characters are not equal, we find the minimum cost operation between the three.
+            val1 = 0
+            val2 = 0
+            val3 = 0
+
+            # Delete
+            if    @matrix[x-1][y] != -1 then val1 = @matrix[x-1][y]
+            else  val1 = minEditDist(x-1,y)
+            end
+
+            # Insert
+            if    @matrix[x][y-1] != -1 then val2 = @matrix[x][y-1]
+            else  val2 = minEditDist(x,y-1)
+            end
+
+            # Replace
+            if    @matrix[x-1][y-1] != -1 then val3 = @matrix[x-1][y-1]
+            else  val3 = minEditDist(x-1,y-1)
+            end
+            @matrix[x][y] = 1 + [val1,val2,val3].min
+            return @matrix[x][y]
         end
     end
 
-    # This prints in reverse order to show the proper logic
-    (-printList.length()...1).each do |x|
-        puts printList[x.abs]
+    # Prepare the edits to reach the goal string from [x][y]
+    def prepareEdits
+        # For print calculation purposes, the index 0,0 must be 0
+        # instead of -1 due to dynamic programming and memoization.
+        @matrix[0][0] = 0
+        
+        # Grabs the length of horizontal and vertical in matrix
+        x = @matrix.length-1
+        y = @matrix[0].length-1
+        loop = true
+        printList = Array.new
+        while(loop) 
+            if (x==0||y==0) then 
+                loop = false
+                break; 
+            end
+            if (@str1[x-1]==@str2[y-1])
+                x = x-1
+                y = y-1
+            elsif (@matrix[x][y] == @matrix[x-1][y]+1)
+                printList.push("Delete "+@str1[x-1])
+                x = x-1
+            elsif (@matrix[x][y] == @matrix[x][y-1]+1)
+                printList.push("Insert "+@str2[y-1])
+                y= y-1
+            elsif (@matrix[x][y] == @matrix[x-1][y-1]+1)
+                printList.push("Replace "+@str1[x-1]+" with "+@str2[y-1])
+                x = x-1
+                y = y-1
+            else
+                puts "ERROR"
+                loop = false
+            end
+        end
+        @editPrompts = printList
+    end
+
+    def printPrompts
+        # This prints in reverse order to show the proper logic
+        (-@editPrompts.length()...1).each do |x|
+            puts @editPrompts[x.abs]
+        end
+    end
+
+    def getDistance 
+        return @distance;
+    end
+    def getMatrix
+        return @matrix;
     end
 end
+
+puts ("CSADPRG MP String Operations w/ Distance")
 
 string1 = "intention"
 string2 = "execution"
 
 # This simply creates a matrix of value -1 (which is the base value)
 strMatrix = Array.new(string1.length+1) { Array.new(string2.length+1) {-1} }
-@globalMatrix = strMatrix
+distProgram = Distance.new(string1,string2, strMatrix)
 
 puts "Input string 1 = #{string1}"
 puts "Input string 2 = #{string2}"
 
 print "Edit Distance: "
-print minEditDist(string1, string2, string1.length(), string2.length(), strMatrix)
+print distProgram.getDistance
 
+distProgram.prepareEdits
 print "\n\nOperations: "
-strMatrix = @globalMatrix
-printEdits(strMatrix, string1, string2)
+distProgram.printPrompts
 
 # Feel free to uncomment to debug how the matrix looks like.
-# width = @globalMatrix.flatten.max.to_s.size+2
-# puts strMatrix.map { |a| a.map { |i| i.to_s.rjust(width) }.join }
+# width = distProgram.getMatrix.flatten.max.to_s.size+2
+# puts distProgram.getMatrix.map { |a| a.map { |i| i.to_s.rjust(width) }.join }
