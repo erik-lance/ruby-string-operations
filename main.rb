@@ -12,7 +12,6 @@ class Distance
         @str1 = string1
         @str2 = string2
         @editPrompts = Array.new
-        puts "test"
         @distance = minEditDist(string1.length,string2.length)
     end
 
@@ -36,10 +35,6 @@ class Distance
             end
         else
             # If characters are not equal, we find the minimum cost operation between the three.
-            val1 = 0
-            val2 = 0
-            val3 = 0
-
             # Delete
             if    @matrix[x-1][y] != -1 then val1 = @matrix[x-1][y]
             else  val1 = minEditDist(x-1,y)
@@ -68,11 +63,9 @@ class Distance
         # Grabs the length of horizontal and vertical in matrix
         x = @matrix.length-1
         y = @matrix[0].length-1
-        loop = true
         printList = Array.new
-        while(loop) 
+        while(true) 
             if (x==0||y==0) then 
-                loop = false
                 break; 
             end
             if (@str1[x-1]==@str2[y-1])
@@ -90,7 +83,7 @@ class Distance
                 y = y-1
             else
                 puts "ERROR"
-                loop = false
+                break
             end
         end
         @editPrompts = printList
@@ -111,17 +104,16 @@ class Distance
     end
 end
 
-puts ("CSADPRG MP String Operations w/ Distance")
+puts ("CSADPRG MP String Operations w/ Distance\n")
 
-string1 = "intention"
-string2 = "execution"
+print "Input string 1 = "
+string1 = gets
+print "Input string 2 = "
+string2 = gets
 
 # This simply creates a matrix of value -1 (which is the base value)
 strMatrix = Array.new(string1.length+1) { Array.new(string2.length+1) {-1} }
-distProgram = Distance.new(string1,string2, strMatrix)
-
-puts "Input string 1 = #{string1}"
-puts "Input string 2 = #{string2}"
+distProgram = Distance.new(string1.chomp,string2.chomp, strMatrix)
 
 print "Edit Distance: "
 print distProgram.getDistance
