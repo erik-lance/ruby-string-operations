@@ -20,11 +20,12 @@ class Distance
     # y = pointer in y direction (initially length of str2)
     def minEditDist(x, y)
         if x == 0 then return y end
-        if y == 0 then return x end
+        if y == 0 then return x end 
 
+        # Skips calculated coordinates
         if (@matrix[x][y] != -1) then return @matrix[x][y] end
 
-        # If characters are equal, perform a recursive function of finding the minimum distance.
+        # If pointers are equal, find the minimum distance.
         if @str1[x-1] == @str2[y-1] then
             if(@matrix[x-1][y-1] == -1) then 
                 @matrix[x][y] = minEditDist(x-1,y-1)
@@ -34,7 +35,7 @@ class Distance
                 return @matrix[x][y]
             end
         else
-            # If characters are not equal, we find the minimum cost operation between the three.
+            # Find the minimum cost operation between the three if not equal at pointer
             # Delete
             if    @matrix[x-1][y] != -1 then val1 = @matrix[x-1][y]
             else  val1 = minEditDist(x-1,y)
@@ -107,13 +108,13 @@ end
 puts ("CSADPRG MP String Operations w/ Distance\n")
 
 print "Input string 1 = "
-string1 = gets
+string1 = gets.chomp
 print "Input string 2 = "
-string2 = gets
+string2 = gets.chomp
 
 # This simply creates a matrix of value -1 (which is the base value)
 strMatrix = Array.new(string1.length+1) { Array.new(string2.length+1) {-1} }
-distProgram = Distance.new(string1.chomp,string2.chomp, strMatrix)
+distProgram = Distance.new(string1,string2, strMatrix)
 
 print "Edit Distance: "
 print distProgram.getDistance
