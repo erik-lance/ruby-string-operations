@@ -5,53 +5,87 @@
 # *********************
 
 # This is a ruby program in handling string edit operations.
+
+# X,Y is the pointer of the matrix.
+class EditMatrix
+    def initialize(matrix, x, y)
+        @matrix = matrix
+        @x = x
+        @y = y
+    end
+
+    # Getters
+    def getMatrix()     return @matrix             end
+
+    def getPoint()      return @matrix[@x][@y]     end
+
+    def getNorth()      return @matrix[@x][@y-1]   end
+
+    def getWest()       return @matrix[@x-1][@y]    end
+
+    def getNorthWest()  return @matrix[@x-1][@y-1] end
+
+    # Setters
+    def setMatrix(z)    @matrix = z             end
+
+    def setPoint(z)     @matrix[@x][@y] = z     end
+
+    def setNorth(z)     @matrix[@x][@y-1] = z   end
+    
+    def setWest(z)      @matrix[@x-1][@y] = z   end
+
+    def setNorthWest(z) @matrix[@x-1][@y-1] = z end
+end
+
 class Distance
     # Constructor for the Distance Object
     def initialize(string1, string2, matrix)
-        @matrix = matrix
+        @editM = EditMatrix.new(matrix, string1.length, string2.length)
         @str1 = string1
         @str2 = string2
         @editPrompts = Array.new
-        @distance = minEditDist(string1.length,string2.length)
+        @distance = minEditDist(@editM, string1.length,string2.length)
     end
 
     # This performs all the calculations for the edit distance
     # x = pointer in x direction (initially length of str1)
     # y = pointer in y direction (initially length of str2)
-    def minEditDist(x, y)
+    def minEditDist(m, x, y)
+        matrix = EditMatrix.new(m.getMatrix,x,y)
         if x == 0 then return y end
         if y == 0 then return x end 
 
         # Skips calculated coordinates
-        if (@matrix[x][y] != -1) then return @matrix[x][y] end
+        if (matrix.getPoint != -1) then return matrix.getPoint end
 
         # If pointers are equal, find the minimum distance.
         if @str1[x-1] == @str2[y-1] then
-            if(@matrix[x-1][y-1] == -1) then 
-                @matrix[x][y] = minEditDist(x-1,y-1)
-                return @matrix[x][y]
+            if(matrix.getNorthWest == -1) then 
+                matrix.setPoint(minEditDist(matrix, x-1,y-1))
+                return matrix.getPoint
             else 
-                @matrix[x][y] = @matrix[x-1][y-1]
-                return @matrix[x][y]
+                matrix.setPoint(matrix.getNorthWest)
+                return matrix.getPoint
             end
         else
             # Find the minimum cost operation between the three if not equal at pointer
             # Delete
-            if    @matrix[x-1][y] != -1 then val1 = @matrix[x-1][y]
-            else  val1 = minEditDist(x-1,y)
+            if    matrix.getWest != -1 then val1 = matrix.getWest
+            else  val1 = minEditDist(matrix, x-1,y)
             end
 
             # Insert
-            if    @matrix[x][y-1] != -1 then val2 = @matrix[x][y-1]
-            else  val2 = minEditDist(x,y-1)
+            if    matrix.getNorth != -1 then val2 = matrix.getNorth
+            else  val2 = minEditDist(matrix, x,y-1)
             end
 
             # Replace
-            if    @matrix[x-1][y-1] != -1 then val3 = @matrix[x-1][y-1]
-            else  val3 = minEditDist(x-1,y-1)
+            if    matrix.getNorthWest != -1 then val3 = matrix.getNorthWest
+            else  val3 = minEditDist(matrix, x-1,y-1)
             end
-            @matrix[x][y] = 1 + [val1,val2,val3].min
-            return @matrix[x][y]
+            matrix.setPoint(1 + [val1,val2,val3].min)
+            setMatrix(matrix)
+            return matrix.getPoint
         end
     end
 
@@ -59,11 +93,15 @@ class Distance
     def prepareEdits
         # For print calculation purposes, the index 0,0 must be 0
         # instead of -1 due to dynamic programming and memoization.
-        @matrix[0][0] = 0
+        matrixTemp = @editM.getMatrix
+        matrixTemp[0][0] = 0
+        @editM.setMatrix(matrixTemp)
         
         # Grabs the length of horizontal and vertical in matrix
-        x = @matrix.length-1
-        y = @matrix[0].length-1
+        x = @editM.getMatrix.length-1
+        y = @editM.getMatrix[0].length-1
+        
+
         printList = Array.new
         while(true) 
             if (x==0||y==0) then 
@@ -72,13 +110,13 @@ class Distance
             if (@str1[x-1]==@str2[y-1])
                 x = x-1
                 y = y-1
-            elsif (@matrix[x][y] == @matrix[x-1][y]+1)
+            elsif (@editM.getPoint == @editM.getWest+1)
                 printList.push("Delete "+@str1[x-1])
                 x = x-1
-            elsif (@matrix[x][y] == @matrix[x][y-1]+1)
+            elsif (@editM.getPoint == @editM.getNorth+1)
                 printList.push("Insert "+@str2[y-1])
                 y= y-1
-            elsif (@matrix[x][y] == @matrix[x-1][y-1]+1)
+            elsif (@editM.getPoint == @editM.getNorthWest+1)
                 printList.push("Replace "+@str1[x-1]+" with "+@str2[y-1])
                 x = x-1
                 y = y-1
@@ -86,6 +124,8 @@ class Distance
                 puts "ERROR"
                 break
             end
+            # Moves the pointer
+            @editM = EditMatrix.new(@editM.getMatrix, x,y)
         end
         @editPrompts = printList
     end
@@ -97,12 +137,10 @@ class Distance
         end
     end
 
-    def getDistance 
-        return @distance;
-    end
-    def getMatrix
-        return @matrix;
-    end
+    def getDistance() return @distance; end
+    def getMatrix() return @editM.getMatrix; end
+
+    def setMatrix(z) @editM = z end
 end
 
 puts ("CSADPRG MP String Operations w/ Distance\n")
